@@ -1,0 +1,9 @@
+﻿{
+  "Id": "exund.commandconsole",
+  "DisplayName": "Command Console",
+  "Author": "Exund",
+  "Version": "1.2.0",
+  "Enable": true,
+  "AssemblyName": "Exund.CommandConsole.dll",
+  "EntryMethod": "Exund.CommandConsole.CommandConsoleMod.Load"
+}
