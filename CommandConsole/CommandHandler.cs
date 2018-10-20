@@ -10,6 +10,25 @@ namespace Exund.CommandConsole
     class CommandHandler : MonoBehaviour
     {
         private int ID = 391476;
+        private GUIContent output = new GUIContent("");
+        private Vector2 scrollPos = Vector2.zero;
+        private bool visible = false;
+
+        public static Dictionary<string, TTCommand> Commands = new Dictionary<string, TTCommand>();
+        public static string info = "<color=yellow>{0}</color>";
+        public static string error = "<color=red>{0}</color>";
+
+        private string expr = "";
+
+        private List<string> history = new List<string>();
+        private int historyIndex = 0;
+        private string last = "";
+
+        private void Start()
+        {
+            output.text = string.Format(info, "Type \"Help\" to get a list of available commands\nType \"Clear\" to clear the console");
+        }
+
         private void OnGUI()
         {
             if (!visible) return;
@@ -29,44 +48,11 @@ namespace Exund.CommandConsole
             {
                 GUI.skin = CommandConsoleMod.Nuterra;
             }
-                /*GUI.skin = _Internal.Skin;
-
-                .window = new GUIStyle(GUI.skin.window)
-                {
-                    normal =
-                {
-                    background = NuterraGUI.LoadImage("Border_BG.png"),
-                    textColor = Color.white
-                },
-                    border = new RectOffset(16, 16, 16, 16),
-                }; 
-
-                GUI.skin.button = new GUIStyle(GUI.skin.button)
-                {
-                    normal =
-                {
-                    background = NuterraGUI.LoadImage("HUD_Button_BG.png"),
-                    textColor = Color.white
-                },
-                    hover =
-                {
-                    background = NuterraGUI.LoadImage("HUD_Button_Highlight.png")
-                },
-                    active =
-                {
-                    background = NuterraGUI.LoadImage("HUD_Button_Selected.png")
-                },
-                    border = new RectOffset(16, 16, 16, 16),
-                    alignment = TextAnchor.MiddleCenter,
-                };*/
-
-                //GUI.skin.window = new GUIStyle { normal = { background = back, textColor = Color.white }, stretchHeight = true, stretchWidth = true };
-            GUI.Window(ID, new Rect(Screen.width - 500f, Screen.height - 500f, 500f, 500f), new GUI.WindowFunction(DoWindow), "Console"/*, new GUIStyle { normal = { background = back, textColor = Color.white }/*, stretchHeight = true, stretchWidth = true }*/);
+                
+            GUI.Window(ID, new Rect(Screen.width - 500f, Screen.height - 500f, 500f, 500f), new GUI.WindowFunction(DoWindow), "Console");
         }
 
-        private List<string> history = new List<string>();
-        private int historyIndex = 0;
-        private string last = "";
+        
 
         private void Update()
         {
@@ -126,6 +112,7 @@ namespace Exund.CommandConsole
             GUILayout.EndHorizontal();
             if(GUILayout.Button("Execute") || exec)
             {
+                if (expr.Trim() == "") return;
                 output.text += "\n" + expr;
                 Handler(expr);
 
@@ -159,7 +146,7 @@ namespace Exund.CommandConsole
                             Console.WriteLine(argName.ToString());
                             try
                             {
-                                ///Console.WriteLine(commandHelp.ArgumentsDescriptions[argName]);
+                                //Console.WriteLine(commandHelp.ArgumentsDescriptions[argName]);
 
                                 output.text += "\n" + argName + " : " + commandHelp.ArgumentsDescriptions[argName];
                             }
@@ -190,31 +177,16 @@ namespace Exund.CommandConsole
                     }
                 }
             }
-            else if (commandName == "clear")
+            else if (commandName == "Clear")
             {
                 output.text = "";
                 last = "";
                 history.Clear();
                 historyIndex = 0;
             }
-            /*else if (commandName == "s")
-            {
-                Tank temp = Singleton.Manager<ManSpawn>.inst.SpawnEmptyTechRef(Singleton.playerTank.Team, Singleton.playerPos + new Vector3(30, 0, 30), Quaternion.identity, true, false,"").visible.tank;
-                try
-                {
-                    output.text += "\n"+ temp.blockman.blockTableSize + " " + temp.blockman.blockCentreBounds.ToString();
-                    var block = Singleton.Manager<ManSpawn>.inst.SpawnBlock(BlockTypes.GSOCockpit_111, new Vector3(0, 53, 0), Quaternion.identity);
-                    temp.blockman.AddBlock(ref block, IntVector3.zero);
-                    output.text += "\n" + temp.blockman.blockTableSize + " " + temp.blockman.blockCentreBounds.ToString();
-                    output.text += "\n" + temp.blockman.GetBlockAtPosition(IntVector3.zero).BlockType.ToString();
-                } catch (Exception ex)
-                {
-                    output.text += "\n" + string.Format(error, ex.Message + "\n" + ex.StackTrace);
-                }
-            }*/
             else
             {
-                if (!Commands.TryGetValue(commandName, out var a))
+                if (!Commands.ContainsKey(commandName))
                 {
                     output.text += "\n" + string.Format(info,"The command \"" + commandName + "\" doesn't exists\nType \"Help\" to get a list of available commands");
                 }
@@ -251,17 +223,6 @@ namespace Exund.CommandConsole
                 }
             }
         }
-        private string expr = "";
-        private GUIContent output = new GUIContent("");
-        private bool visible = false;
-
-        public static Dictionary<string, TTCommand> Commands = new Dictionary<string, TTCommand>();
-
-        private Vector2 scrollPos = Vector2.zero;
-
-        public static Texture2D back = new Texture2D(42, 42);
-
-        public static string info = "<color=yellow>{0}</color>";
-        public static string error = "<color=red>{0}</color>";
+        
     }
 }
