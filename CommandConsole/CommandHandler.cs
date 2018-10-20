@@ -112,7 +112,8 @@ namespace Exund.CommandConsole
             GUILayout.EndHorizontal();
             if(GUILayout.Button("Execute") || exec)
             {
-                if (expr.Trim() == "") return;
+                expr = expr.Trim();
+                if (expr == "") return;
                 output.text += "\n" + expr;
                 Handler(expr);
 
@@ -137,8 +138,14 @@ namespace Exund.CommandConsole
 
                 if (input.Split(' ').Length > 1 && !int.TryParse(input.Split(' ')[1], out page))
                 {
-                    TTCommand commandHelp = Commands[input.Split(' ')[1]];
-                    output.text += "\n" + string.Format(info, input.Split(' ')[1] + " : " + commandHelp.Description);
+                    var cmd = input.Split(' ')[1];
+                    if (!Commands.ContainsKey(cmd))
+                    {
+                        output.text += "\n" + string.Format(info, "The command \"" + cmd + "\" doesn't exists\nType \"Help\" to get a list of available commands");
+                        return;
+                    }
+                    TTCommand commandHelp = Commands[cmd];
+                    output.text += "\n" + string.Format(info, cmd + " : " + commandHelp.Description);
                     if (commandHelp.ArgumentsDescriptions.Keys.Count != 0)
                     {
                         foreach (string argName in commandHelp.ArgumentsDescriptions.Keys)
