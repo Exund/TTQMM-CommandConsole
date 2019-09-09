@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using System.IO;
+using System.Reflection;
+using ModHelper.Config;
+using Nuterra.NativeOptions;
 
 namespace Exund.CommandConsole
 {
@@ -11,25 +13,29 @@ namespace Exund.CommandConsole
     {
         private static GameObject _holder;
 
-        private static System.Reflection.FieldInfo m_Sky;
+        private static FieldInfo m_Sky;
 
-        public static GUISkin Nuterra;
-
-        public static bool ModExists(string name)
-        {
-            foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (assembly.FullName.StartsWith(name))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+		internal static KeyCode commandConsoleKeycode = KeyCode.KeypadEnter;
 
         public static void Load()
         {
-            _holder = new GameObject();
+			ModConfig config = new ModConfig();
+			int v = (int)KeyCode.KeypadEnter;
+			config.TryGetConfig<int>("commandConsoleKeycode", ref v);
+			commandConsoleKeycode = (KeyCode)v;
+
+			OptionKey commandConsoleKey = new OptionKey("Command Console toggle", "Command Console", commandConsoleKeycode);
+			commandConsoleKey.onValueSaved.AddListener(() =>
+			{
+				commandConsoleKeycode = commandConsoleKey.SavedValue;
+				config["commandConsoleKeycode"] = (int)commandConsoleKeycode;
+				config.WriteConfigJsonFile();
+			});
+
+			
+
+
+			_holder = new GameObject();
             _holder.AddComponent<CommandHandler>();
             UnityEngine.Object.DontDestroyOnLoad(_holder);
 

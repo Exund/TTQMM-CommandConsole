@@ -29,80 +29,68 @@ namespace Exund.CommandConsole
             output.text = string.Format(info, "Type \"Help\" to get a list of available commands\nType \"Clear\" to clear the console");
         }
 
-        private void OnGUI()
-        {
-            if (!visible) return;
-            if (!CommandConsoleMod.Nuterra && CommandConsoleMod.ModExists("Nuterra.UI") )
-            {
-                foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (assembly.FullName.StartsWith("Nuterra.UI"))
-                    {
-                        var type = assembly.GetTypes().First(t => t.Name.Contains("NuterraGUI"));
-                        CommandConsoleMod.Nuterra = (GUISkin)type.GetProperty("Skin").GetValue(null, null);
-                        break;
-                    }
-                }
-            }
-            if (CommandConsoleMod.Nuterra)
-            {
-                GUI.skin = CommandConsoleMod.Nuterra;
-            }
-                
-            GUI.Window(ID, new Rect(Screen.width - 500f, Screen.height - 500f, 500f, 500f), new GUI.WindowFunction(DoWindow), "Console");
-        }
-
-        
-
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.BackQuote) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            if (Input.GetKeyDown(CommandConsoleMod.commandConsoleKeycode))
             {
                 visible = !visible;
+				useGUILayout = visible;
             }
         }
 
-        private void DoWindow(int id)
+		private void OnGUI()
+		{
+			if (!visible) return;
+			GUI.Window(ID, new Rect(Screen.width - 500f, Screen.height - 500f, 500f, 500f), DoWindow, "Console");
+		}
+
+		private void DoWindow(int id)
         {
             bool exec = false;
             Event current = Event.current;
-            if (current.isKey && current.type == EventType.KeyDown)
-            {
-                if (current.keyCode == KeyCode.Return && expr != "")
-                {
-                    exec = true; // If return is pressed
-                }
-                else if (current.keyCode == KeyCode.UpArrow) // If up is pressed
-                {
-                    if (historyIndex > 0)
-                    {
-                        if (historyIndex == history.Count)
-                        {
-                            last = expr; // Save current command
-                        }
-                        historyIndex--;
-                        expr = history[historyIndex];
-                    }
-                }
-                else if (current.keyCode == KeyCode.DownArrow)
-                {
-                    if (historyIndex < history.Count)
-                    {
-                        if (expr == history[historyIndex]) // If in correct position
-                        {
-                            historyIndex++;
-                        }
-                        if (historyIndex == history.Count)
-                        {
-                            expr = last; // Reload last command
-                        }
-                        else
-                        {
-                            expr = history[historyIndex]; // Load command at postiton
-                        }
-                    }
-                }
-            }
+			try
+			{
+				if (current.isKey && current.type == EventType.KeyDown)
+				{
+					if (current.keyCode == KeyCode.Return && expr != "")
+					{
+						exec = true; // If return is pressed
+					}
+					else if (current.keyCode == KeyCode.UpArrow) // If up is pressed
+					{
+						if (historyIndex > 0)
+						{
+							if (historyIndex == history.Count)
+							{
+								last = expr; // Save current command
+							}
+							historyIndex--;
+							expr = history[historyIndex];
+						}
+					}
+					else if (current.keyCode == KeyCode.DownArrow)
+					{
+						if (historyIndex < history.Count)
+						{
+							if (expr == history[historyIndex]) // If in correct position
+							{
+								historyIndex++;
+							}
+							if (historyIndex == history.Count)
+							{
+								expr = last; // Reload last command
+							}
+							else
+							{
+								expr = history[historyIndex]; // Load command at postiton
+							}
+						}
+					}
+				}
+			} catch(Exception e)
+			{
+				Console.WriteLine(e);
+			}
 
             scrollPos = GUILayout.BeginScrollView(scrollPos);
             GUILayout.Label(output);
@@ -119,6 +107,7 @@ namespace Exund.CommandConsole
 
                 if (history.Count == 0 || expr != history.Last())
                 {
+					history.RemoveRange(historyIndex, history.Count - historyIndex);
                     historyIndex++;
                     history.Add(expr);
                     expr = "";
@@ -229,7 +218,6 @@ namespace Exund.CommandConsole
                     }
                 }
             }
-        }
-        
+        }  
     }
 }

@@ -1,1 +1,3 @@
 https://github.com/Exund/TTQMM-CommandConsole/tree/master/CommandConsole/bin
+/Aceba1/TTQMM-ModConfigHelper
+/Exund/Nuterra.NativeOptions
