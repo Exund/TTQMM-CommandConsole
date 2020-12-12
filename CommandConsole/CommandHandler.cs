@@ -214,7 +214,7 @@ namespace Exund.CommandConsole
                     catch (Exception ex)
                     {
                         output.text += "\n" + string.Format(error,"An error occured in the command " + commandName);
-                        Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                        Console.WriteLine(ex.ToString());
                     }
                 }
             }
